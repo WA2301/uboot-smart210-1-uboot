@@ -171,16 +171,16 @@ include $(TOPDIR)/config.mk
 # U-Boot objects....order is important (i.e. start must be first)
 
 OBJS  = $(CPUDIR)/start.o
-ifeq ($(CPU),x86)
-OBJS += $(CPUDIR)/start16.o
-OBJS += $(CPUDIR)/resetvec.o
-endif
-ifeq ($(CPU),ppc4xx)
-OBJS += $(CPUDIR)/resetvec.o
-endif
-ifeq ($(CPU),mpc85xx)
-OBJS += $(CPUDIR)/resetvec.o
-endif
+# ifeq ($(CPU),x86)
+# OBJS += $(CPUDIR)/start16.o
+# OBJS += $(CPUDIR)/resetvec.o
+# endif
+# ifeq ($(CPU),ppc4xx)
+# OBJS += $(CPUDIR)/resetvec.o
+# endif
+# ifeq ($(CPU),mpc85xx)
+# OBJS += $(CPUDIR)/resetvec.o
+# endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
 
@@ -227,19 +227,19 @@ LIBS += common/libcommon.o
 LIBS += lib/libfdt/libfdt.o
 #LIBS += post/libpost.o
 
-ifeq ($(SOC),omap3)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
-endif
-ifeq ($(SOC),omap4)
-LIBS += $(CPUDIR)/omap-common/libomap-common.o
-endif
+# ifeq ($(SOC),omap3)
+# LIBS += $(CPUDIR)/omap-common/libomap-common.o
+# endif
+# ifeq ($(SOC),omap4)
+# LIBS += $(CPUDIR)/omap-common/libomap-common.o
+# endif
 
 ifeq ($(SOC),s5pc1xx)
 LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
-ifeq ($(SOC),s5pc2xx)
-LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
-endif
+# ifeq ($(SOC),s5pc2xx)
+# LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
+# endif
 
 LIBS := $(addprefix $(obj),$(sort $(LIBS)))
 .PHONY : $(LIBS) $(TIMESTAMP_FILE)
@@ -292,8 +292,7 @@ endif
 # Always append ALL so that arch config.mk's can add custom ones
 ALL-y += $(obj)u-boot.bin
 
-#ʹ�ܱ���u-boot-spl.bin �����ϲ����� smart210-uboot.bin
-ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
+# ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
 
 all:		$(ALL-y)
 		@echo "Start For Final Target [all]..."
@@ -309,7 +308,6 @@ GEN_UBOOT = \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
 
-#��Ҫ������Ϊ����u-boot
 $(obj)u-boot:	depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 

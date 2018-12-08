@@ -279,7 +279,7 @@ void board_init_f(ulong bootflag)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-	memset((void *)gd, 0, sizeof(gd_t));
+	memset((void *)gd, 0, sizeof(gd_t));//声明
 
 	gd->mon_len = _bss_end_ofs;
 
@@ -295,48 +295,15 @@ void board_init_f(ulong bootflag)
 	 * Ram is setup, size stored in gd !!
 	 */
 	printf("ramsize: %08lX\n", gd->ram_size);//WA2301 : ramsize: 20000000
-#if defined(CONFIG_SYS_MEM_TOP_HIDE)
-	/*
-	 * Subtract specified amount of memory to hide so that it won't
-	 * get "touched" at all by U-Boot. By fixing up gd->ram_size
-	 * the Linux kernel should now get passed the now "corrected"
-	 * memory size and won't touch it either. This should work
-	 * for arch/ppc and arch/powerpc. Only Linux board ports in
-	 * arch/powerpc with bootwrapper support, that recalculate the
-	 * memory size from the SDRAM controller setup will have to
-	 * get fixed.
-	 */
-	gd->ram_size -= CONFIG_SYS_MEM_TOP_HIDE;
-#endif
+	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;//4000 0000
 
-	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
-
-#ifdef CONFIG_LOGBUFFER
-#ifndef CONFIG_ALT_LB_ADDR
-	/* reserve kernel log buffer */
-	addr -= (LOGBUFF_RESERVE);
-	debug("Reserving %dk for kernel logbuffer at %08lx\n", LOGBUFF_LEN,
-		addr);
-#endif
-#endif
-
-#ifdef CONFIG_PRAM
-	/*
-	 * reserve protected RAM
-	 */
-	i = getenv_r("pram", (char *)tmp, sizeof(tmp));
-	reg = (i > 0) ? simple_strtoul((const char *)tmp, NULL, 10) :
-		CONFIG_PRAM;
-	addr -= (reg << 10);		/* size is in kB */
-	printf("Reserving01 %ldk for protected RAM at %08lx\n", reg, addr);//WA2301
-#endif /* CONFIG_PRAM */
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	/* reserve TLB table */
-	addr -= (4096 * 4);
+	addr -= (4096 * 4);							//-4000 = 3fff c000
 
 	/* round down to next 64 kB limit */
-	addr &= ~(0x10000 - 1);
+	addr &= ~(0x10000 - 1);//0xFFFF 0000                = 3fff 0000
 
 	gd->tlb_addr = addr;
 	printf("TLB table at: %08lx\n", addr);//WA2301 : TLB table at: 3fff0000
@@ -348,16 +315,6 @@ void board_init_f(ulong bootflag)
 	//WA2301 : Top of RAM usable for U-Boot at: 3fff0000
 	printf("Top of RAM usable for U-Boot at: %08lx\n", addr);
 
-#ifdef CONFIG_LCD
-#ifdef CONFIG_FB_ADDR
-	gd->fb_base = CONFIG_FB_ADDR;
-#else
-	/* reserve memory for LCD display (always full pages) */
-	addr = lcd_setmem(addr);
-	gd->fb_base = addr;
-#endif /* CONFIG_FB_ADDR */
-#endif /* CONFIG_LCD */
-
 	/*
 	 * reserve memory for U-Boot code, data & bss
 	 * round down to next 4 kB limit
@@ -368,7 +325,6 @@ void board_init_f(ulong bootflag)
 	//WA2301 : Reserving02 419k for U-Boot at: 3ff87000
 	printf("Reserving02 %ldk for U-Boot at: %08lx\n", gd->mon_len >> 10, addr);
 
-#ifndef CONFIG_SPL_BUILD
 	/*
 	 * reserve memory for malloc() arena
 	 */
@@ -398,27 +354,13 @@ void board_init_f(ulong bootflag)
 
 	/* setup stackpointer for exeptions */
 	gd->irq_sp = addr_sp;
-#ifdef CONFIG_USE_IRQ
-	addr_sp -= (CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ);
-	debug("Reserving %zu Bytes for IRQ stack at: %08lx\n",
-		CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ, addr_sp);
-#endif
 	/* leave 3 words for abort-stack    */
 	addr_sp -= 12;
 
 	/* 8-byte alignment for ABI compliance */
 	addr_sp &= ~0x07;
-#else
-	addr_sp += 128;	/* leave 32 words for abort-stack   */
-	gd->irq_sp = addr_sp;
-#endif
 
 	debug("New Stack Pointer is: %08lx\n", addr_sp);
-
-#ifdef CONFIG_POST
-	post_bootmode_init();
-	post_run(NULL, POST_ROM | post_bootmode_get(0));
-#endif
 
 	gd->bd->bi_baudrate = gd->baudrate;
 	/* Ram ist board specific, so move it to board code ... */
@@ -436,6 +378,7 @@ void board_init_f(ulong bootflag)
 	printf("memcpy size = %d\n",sizeof(gd_t));
 	memcpy(id, (void *)gd, sizeof(gd_t));
 
+	//relocate_code( addr_sp = 3fe9ef60, id = 3fe9ef70, addr = 3ff87000)
 	relocate_code(addr_sp, id, addr);//Go to RAM -- WA2301..
 
 	/* NOTREACHED - relocate_code() does not return */
@@ -481,7 +424,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
 #endif
-
+	//Now running in RAM - U-Boot at: 3ff87000,that means relocate complete!!
 	debug("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
 #ifdef CONFIG_LOGBUFFER

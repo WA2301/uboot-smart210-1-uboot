@@ -1,56 +1,56 @@
 #include <common.h>
-#include <s5pc110.h>
+// #include <s5pc110.h>
 
-/* #include <movi.h> */
-#include <asm/io.h>
-#if 0
-#include <regs.h>
-#include <mmc.h>
-#endif
+// /* #include <movi.h> */
+// #include <asm/io.h>
+// #if 0
+// #include <regs.h>
+// #include <mmc.h>
+// #endif
 
-#define MAGIC_NUMBER_MOVI       (0x24564236)
-#if defined(CONFIG_SECURE) || defined(CONFIG_FUSED)
-#define FWBL1_SIZE              (4* 1024)
-#endif
+// #define MAGIC_NUMBER_MOVI       (0x24564236)
+// #if defined(CONFIG_SECURE) || defined(CONFIG_FUSED)
+// #define FWBL1_SIZE              (4* 1024)
+// #endif
 
-#define SS_SIZE                 (8 * 1024)
+// #define SS_SIZE                 (8 * 1024)
 
-#if defined(CONFIG_EVT1)
-#define eFUSE_SIZE              (1 * 512)       // 512 Byte eFuse, 512 Byte reserved
-#else
-#define eFUSE_SIZE              (1 * 1024)      // 1 kB eFuse, 1 KB reserved
-#endif /* CONFIG_EVT1 */
+// #if defined(CONFIG_EVT1)
+// #define eFUSE_SIZE              (1 * 512)       // 512 Byte eFuse, 512 Byte reserved
+// #else
+// #define eFUSE_SIZE              (1 * 1024)      // 1 kB eFuse, 1 KB reserved
+// #endif /* CONFIG_EVT1 */
 
 
-#define MOVI_BLKSIZE            (1<<9) /* 512 bytes */
+// #define MOVI_BLKSIZE            (1<<9) /* 512 bytes */
 
-/* partition information */
-#define PART_SIZE_BL            (512 * 1024)
-#define PART_SIZE_KERNEL        (4 * 1024 * 1024)
-#define PART_SIZE_ROOTFS        (26 * 1024 * 1024)
+// /* partition information */
+// #define PART_SIZE_BL            (512 * 1024)
+// #define PART_SIZE_KERNEL        (4 * 1024 * 1024)
+// #define PART_SIZE_ROOTFS        (26 * 1024 * 1024)
 
-//#define MOVI_LAST_BLKPOS        (MOVI_TOTAL_BLKCNT - (eFUSE_SIZE / MOVI_BLKSIZE))
+// //#define MOVI_LAST_BLKPOS        (MOVI_TOTAL_BLKCNT - (eFUSE_SIZE / MOVI_BLKSIZE))
 
-/* Add block count at fused chip */
-#if defined(CONFIG_SECURE) || defined(CONFIG_FUSED)
-#define MOVI_FWBL1_BLKCNT       (FWBL1_SIZE / MOVI_BLKSIZE)     /* 4KB */
-#endif
+// /* Add block count at fused chip */
+// #if defined(CONFIG_SECURE) || defined(CONFIG_FUSED)
+// #define MOVI_FWBL1_BLKCNT       (FWBL1_SIZE / MOVI_BLKSIZE)     /* 4KB */
+// #endif
 
-#define MOVI_BL1_BLKCNT         (SS_SIZE / MOVI_BLKSIZE)        /* 8KB */
-#define MOVI_ENV_BLKCNT         (CONFIG_ENV_SIZE / MOVI_BLKSIZE)   /* 16KB */
-#define MOVI_BL2_BLKCNT         (PART_SIZE_BL / MOVI_BLKSIZE)   /* 512KB */
-#define MOVI_ZIMAGE_BLKCNT      (PART_SIZE_KERNEL / MOVI_BLKSIZE)       /* 4MB */
+// #define MOVI_BL1_BLKCNT         (SS_SIZE / MOVI_BLKSIZE)        /* 8KB */
+// #define MOVI_ENV_BLKCNT         (CONFIG_ENV_SIZE / MOVI_BLKSIZE)   /* 16KB */
+// #define MOVI_BL2_BLKCNT         (PART_SIZE_BL / MOVI_BLKSIZE)   /* 512KB */
+// #define MOVI_ZIMAGE_BLKCNT      (PART_SIZE_KERNEL / MOVI_BLKSIZE)       /* 4MB */
 
-/* Change writing block position at fused chip */
-#if defined(CONFIG_EVT1)
-        #if defined(CONFIG_SECURE) || defined(CONFIG_FUSED)
-#define MOVI_BL2_POS            ((eFUSE_SIZE / MOVI_BLKSIZE) + (FWBL1_SIZE / MOVI_BLKSIZE) + MOVI_BL1_BLKCNT + MOVI_ENV_BLKCNT)
-        #else
-#define MOVI_BL2_POS            ((eFUSE_SIZE / MOVI_BLKSIZE) + MOVI_BL1_BLKCNT + MOVI_ENV_BLKCNT)
-        #endif
-#else
-//#define MOVI_BL2_POS            (MOVI_LAST_BLKPOS - MOVI_BL1_BLKCNT - MOVI_BL2_BLKCNT - MOVI_ENV_BLKCNT)
-#endif
+// /* Change writing block position at fused chip */
+// #if defined(CONFIG_EVT1)
+//         #if defined(CONFIG_SECURE) || defined(CONFIG_FUSED)
+// #define MOVI_BL2_POS            ((eFUSE_SIZE / MOVI_BLKSIZE) + (FWBL1_SIZE / MOVI_BLKSIZE) + MOVI_BL1_BLKCNT + MOVI_ENV_BLKCNT)
+//         #else
+// #define MOVI_BL2_POS            ((eFUSE_SIZE / MOVI_BLKSIZE) + MOVI_BL1_BLKCNT + MOVI_ENV_BLKCNT)
+//         #endif
+// #else
+// //#define MOVI_BL2_POS            (MOVI_LAST_BLKPOS - MOVI_BL1_BLKCNT - MOVI_BL2_BLKCNT - MOVI_ENV_BLKCNT)
+// #endif
 
 #if 0
 #if defined(CONFIG_SECURE) || defined(CONFIG_FUSED)
@@ -154,25 +154,25 @@ void copy_uboot_to_ram(void)
 }
 
 //WA2301: This 'board_init_f' is in u-boot-spl.bin
-void board_init_f(unsigned long bootflag)
-{
-        __attribute__((noreturn)) void (*uboot)(void);
+// void board_init_f(unsigned long bootflag)
+// {
+//         __attribute__((noreturn)) void (*uboot)(void);
 		
-        copy_uboot_to_ram();
+//         copy_uboot_to_ram();
 
-        /* Jump to U-Boot image */
-        uboot = (void *)CONFIG_SYS_TEXT_BASE; //WA2301: Go to Ram...
-        (*uboot)();
-        /* Never returns Here */
-}
+//         /* Jump to U-Boot image */
+//         uboot = (void *)CONFIG_SYS_TEXT_BASE; //WA2301: Go to Ram...
+//         (*uboot)();
+//         /* Never returns Here */
+// }
 /* Place Holders */
-void board_init_r(gd_t *id, ulong dest_addr)
-{
-        /* Function attribute is no-return */
-        /* This Function never executes */
-        while (1)
-                ;
-}
+// void board_init_r(gd_t *id, ulong dest_addr)
+// {
+//         /* Function attribute is no-return */
+//         /* This Function never executes */
+//         while (1)
+//                 ;
+// }
 
 void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3) {}
 #if 0

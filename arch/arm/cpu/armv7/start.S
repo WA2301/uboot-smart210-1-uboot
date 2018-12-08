@@ -145,29 +145,29 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr,r0
 
-#if defined(CONFIG_OMAP34XX)
-	/* Copy vectors to mask ROM indirect addr */
-	adr	r0, _start		@ r0 <- current position of code
-	add	r0, r0, #4		@ skip reset vector
-	mov	r2, #64			@ r2 <- size to copy
-	add	r2, r0, r2		@ r2 <- source end address
-	mov	r1, #SRAM_OFFSET0	@ build vect addr
-	mov	r3, #SRAM_OFFSET1
-	add	r1, r1, r3
-	mov	r3, #SRAM_OFFSET2
-	add	r1, r1, r3
-next:
-	ldmia	r0!, {r3 - r10}		@ copy from source address [r0]
-	stmia	r1!, {r3 - r10}		@ copy to   target address [r1]
-	cmp	r0, r2			@ until source end address [r2]
-	bne	next			@ loop until equal */
-#if !defined(CONFIG_SYS_NAND_BOOT) && !defined(CONFIG_SYS_ONENAND_BOOT)
-	/* No need to copy/exec the clock code - DPLL adjust already done
-	 * in NAND/oneNAND Boot.
-	 */
-	bl	cpy_clk_code		@ put dpll adjust code behind vectors
-#endif /* NAND Boot */
-#endif
+@ #if defined(CONFIG_OMAP34XX)
+@ 	/* Copy vectors to mask ROM indirect addr */
+@ 	adr	r0, _start		@ r0 <- current position of code
+@ 	add	r0, r0, #4		@ skip reset vector
+@ 	mov	r2, #64			@ r2 <- size to copy
+@ 	add	r2, r0, r2		@ r2 <- source end address
+@ 	mov	r1, #SRAM_OFFSET0	@ build vect addr
+@ 	mov	r3, #SRAM_OFFSET1
+@ 	add	r1, r1, r3
+@ 	mov	r3, #SRAM_OFFSET2
+@ 	add	r1, r1, r3
+@ next:
+@ 	ldmia	r0!, {r3 - r10}		@ copy from source address [r0]
+@ 	stmia	r1!, {r3 - r10}		@ copy to   target address [r1]
+@ 	cmp	r0, r2			@ until source end address [r2]
+@ 	bne	next			@ loop until equal */
+@ #if !defined(CONFIG_SYS_NAND_BOOT) && !defined(CONFIG_SYS_ONENAND_BOOT)
+@ 	/* No need to copy/exec the clock code - DPLL adjust already done
+@ 	 * in NAND/oneNAND Boot.
+@ 	 */
+@ 	bl	cpy_clk_code		@ put dpll adjust code behind vectors
+@ #endif /* NAND Boot */
+@ #endif
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_crit
@@ -244,9 +244,9 @@ board_init_in_ram:
  */
 	.globl	relocate_code
 relocate_code:
-	mov	r4, r0	/* save addr_sp */
-	mov	r5, r1	/* save addr of gd */
-	mov	r6, r2	/* save addr of destination */
+	mov	r4, r0	/* save addr_sp 			3fe9ef60 */
+	mov	r5, r1	/* save addr of gd 			3fe9ef70 */
+	mov	r6, r2	/* save addr of destination	3ff87000 */
 
 	/* Set up the stack						    */
 stack_setup:
@@ -338,7 +338,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.
  */
-jump_2_ram:
+@ jump_2_ram:
 /*
  * If I-cache is enabled invalidate it
  */
